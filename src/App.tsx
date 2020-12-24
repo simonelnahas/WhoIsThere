@@ -61,7 +61,6 @@ function ChatMessage(
   const { text, winner, sender } = chatMessageObject;
 
   const makeGuess = (name: any) => () => {
-    console.log("guessed", name);
     if (sender === name) {
       console.log("Correct!");
       firebase
@@ -72,26 +71,31 @@ function ChatMessage(
         });
     } else {
       console.log("Wrong!");
+      alert("Wrong, try again");
+      alert("give everyone else a chance to make a guess!");
+      alert("wait a little more!");
     }
   };
 
   return (
-    <li>
+    <li key={messageKey}>
       {winner ? (
         sender + " : " + text + " - Winner was " + winner.is
       ) : (
         <>
           Who wrote this? : {text}
-          {nameList.map((name) => {
-            if (name === userName) {
-              return "";
-            }
-            return (
-              <Button onClick={makeGuess(name)} variant="outlined">
-                {name}
-              </Button>
-            );
-          })}
+          <>
+            {nameList.map((name) => {
+              if (name === userName) {
+                return "";
+              }
+              return (
+                <Button onClick={makeGuess(name)} variant="outlined">
+                  {name}
+                </Button>
+              );
+            })}
+          </>
         </>
       )}
     </li>
