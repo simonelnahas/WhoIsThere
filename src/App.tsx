@@ -77,7 +77,7 @@ function MessageDispatcher() {
         variant="outlined"
       />
 
-      <Button onClick={sendMessage} label="Outlined" variant="outlined">
+      <Button onClick={sendMessage} label="sendMessage" variant="outlined">
         send
       </Button>
     </>
