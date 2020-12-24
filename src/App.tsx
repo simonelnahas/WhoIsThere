@@ -42,7 +42,7 @@ function Chat(props: { userName: string }) {
 
   return (
     <>
-      <List className={classes}>
+      <List className={classes.root}>
         {error && <strong>Error: {error}</strong>}
         {loading && <span>List: Loading...</span>}
         {!loading && snapshots && (
