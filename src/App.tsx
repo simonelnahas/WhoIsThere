@@ -77,14 +77,23 @@ function ChatMessage(
 
   return (
     <li>
-      The sender was : {winner ? sender : "?"} - {text}{" "}
-      {nameList.map((name) => {
-        return (
-          <Button onClick={makeGuess(name)} variant="outlined">
-            {name}
-          </Button>
-        );
-      })}
+      {winner ? (
+        sender + " : " + text + " - Winner was " + winner.is
+      ) : (
+        <>
+          Who wrote this? : {text}
+          {nameList.map((name) => {
+            if (name === userName) {
+              return "";
+            }
+            return (
+              <Button onClick={makeGuess(name)} variant="outlined">
+                {name}
+              </Button>
+            );
+          })}
+        </>
+      )}
     </li>
   );
 }
