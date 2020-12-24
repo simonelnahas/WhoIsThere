@@ -5,6 +5,8 @@ import { useList } from "react-firebase-hooks/database";
 import { Button, TextField } from "@material-ui/core";
 import { useRef } from "react";
 
+const nameList = ["Alex", "Lisa", "Simon", "Tina", "Nicolai"];
+
 export default function App() {
   return (
     <div className="App">
@@ -18,6 +20,7 @@ export default function App() {
 function Chat() {
   const messageListRef = firebase.database().ref("messages");
   const [snapshots, loading, error] = useList(messageListRef);
+
   return (
     <>
       <h2> Chat </h2>
@@ -28,7 +31,9 @@ function Chat() {
           <React.Fragment>
             <span>
               {snapshots.map((v) => (
-                <React.Fragment key={v.key}>{ChatMessage(v.val())}</React.Fragment>
+                <React.Fragment key={v.key}>
+                  {ChatMessage(v.val())}
+                </React.Fragment>
               ))}
             </span>
           </React.Fragment>
@@ -38,12 +43,27 @@ function Chat() {
   );
 }
 
-function ChatMessage(chatMessageObject) {
+function ChatMessage(chatMessageObject: any) {
   const { text, winner, sender } = chatMessageObject;
+  const makeGuess = (name: any) => () => {
+    console.log("guessed", name);
+    if (sender === name) {
+      console.log("Correct!");
+    } else {
+      console.log("Wrong!");
+    }
+  };
 
   return (
     <li>
       The sender was : {winner ? sender : "?"} - {text}{" "}
+      {nameList.map((name) => {
+        return (
+          <Button onClick={makeGuess(name)} variant="outlined">
+            {name}
+          </Button>
+        );
+      })}
     </li>
   );
 }
