@@ -28,9 +28,7 @@ function Chat() {
           <React.Fragment>
             <span>
               {snapshots.map((v) => (
-                <React.Fragment key={v.key}>
-                  <li>{v.val().text} </li>{" "}
-                </React.Fragment>
+                <React.Fragment key={v.key}>{ChatMessage(v.val())}</React.Fragment>
               ))}
             </span>
           </React.Fragment>
@@ -40,16 +38,29 @@ function Chat() {
   );
 }
 
+function ChatMessage(chatMessageObject) {
+  const { text, winner, sender } = chatMessageObject;
+
+  return (
+    <li>
+      The sender was : {winner ? sender : "?"} - {text}{" "}
+    </li>
+  );
+}
+
 function MessageDispatcher() {
   const messageListRef = firebase.database().ref("messages");
   const messageFieldRef = useRef(""); //creating a refernce for TextField Component
   const nameFieldRef = useRef(""); //creating a refernce for TextField Component
   const sendMessage = () => {
     // get message
+    //@ts-ignore
     const messageString = messageFieldRef.current.value;
+    //@ts-ignore
     messageFieldRef.current.value = "";
 
     // get name
+    //@ts-ignore
     const nameString = nameFieldRef.current.value;
 
     //send messagge
@@ -77,7 +88,7 @@ function MessageDispatcher() {
         variant="outlined"
       />
 
-      <Button onClick={sendMessage} label="sendMessage" variant="outlined">
+      <Button onClick={sendMessage} variant="outlined">
         send
       </Button>
     </>
