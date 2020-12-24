@@ -8,12 +8,6 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const nameList = ["Alex", "Lisa", "Simon", "Tina", "Nicolai"];
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper
-  }
-}));
 function SetUserName(props: {
   setUserName: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) {
@@ -36,13 +30,12 @@ function SetUserName(props: {
 }
 
 function Chat(props: { userName: string }) {
-  const classes = useStyles();
   const messageListRef = firebase.database().ref("messages");
   const [snapshots, loading, error] = useList(messageListRef);
 
   return (
     <>
-      <List className={classes.root}>
+      <ul>
         {error && <strong>Error: {error}</strong>}
         {loading && <span>List: Loading...</span>}
         {!loading && snapshots && (
@@ -56,7 +49,7 @@ function Chat(props: { userName: string }) {
             </span>
           </React.Fragment>
         )}
-      </List>
+      </ul>
     </>
   );
 }
@@ -86,27 +79,25 @@ function ChatMessage(
   };
 
   return (
-    <ListItem key={messageKey}>
+    <li key={messageKey}>
       {winner ? (
         sender + " : " + text + " - Winner was " + winner.is
       ) : (
         <>
-          Who wrote this? : {text}
-          <>
-            {nameList.map((name) => {
-              if (name === userName) {
-                return "";
-              }
-              return (
-                <Button onClick={makeGuess(name)} variant="outlined">
-                  {name}
-                </Button>
-              );
-            })}
-          </>
+          {text} {" :  "}
+          {nameList.map((name) => {
+            if (name === userName) {
+              return "";
+            }
+            return (
+              <Button onClick={makeGuess(name)} variant="outlined">
+                {name}
+              </Button>
+            );
+          })}
         </>
       )}
-    </ListItem>
+    </li>
   );
 }
 
