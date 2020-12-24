@@ -3,27 +3,37 @@ import "./styles.css";
 import firebase from "firebase";
 import { useList } from "react-firebase-hooks/database";
 import { Button, TextField } from "@material-ui/core";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const nameList = ["Alex", "Lisa", "Simon", "Tina", "Nicolai"];
 
-export default function App() {
+function SetUserName(props: {
+  setUserName: React.Dispatch<React.SetStateAction<string | undefined>>;
+}) {
+  const setName = (name: string) => () => {
+    props.setUserName(name);
+  };
+
   return (
-    <div className="App">
-      <h1>Gæt hvem der skrev beskeden:</h1>
-      <Chat />
-      <MessageDispatcher />
-    </div>
+    <>
+      <h1> Who Are you? </h1>
+      {nameList.map((name) => {
+        return (
+          <Button onClick={setName(name)} variant="outlined">
+            {name}
+          </Button>
+        );
+      })}
+    </>
   );
 }
 
-function Chat() {
+function Chat(props: { userName: string }) {
   const messageListRef = firebase.database().ref("messages");
   const [snapshots, loading, error] = useList(messageListRef);
 
   return (
     <>
-      <h2> Chat </h2>
       <ul>
         {error && <strong>Error: {error}</strong>}
         {loading && <span>List: Loading...</span>}
@@ -32,7 +42,7 @@ function Chat() {
             <span>
               {snapshots.map((v) => (
                 <React.Fragment key={v.key}>
-                  {ChatMessage(v.val())}
+                  {ChatMessage(v.val(), v.key, props.userName)}
                 </React.Fragment>
               ))}
             </span>
@@ -43,12 +53,23 @@ function Chat() {
   );
 }
 
-function ChatMessage(chatMessageObject: any) {
+function ChatMessage(
+  chatMessageObject: any,
+  messageKey: string,
+  userName: string
+) {
   const { text, winner, sender } = chatMessageObject;
+
   const makeGuess = (name: any) => () => {
     console.log("guessed", name);
     if (sender === name) {
       console.log("Correct!");
+      firebase
+        .database()
+        .ref("messages/" + messageKey + "/winner")
+        .set({
+          is: userName
+        });
     } else {
       console.log("Wrong!");
     }
@@ -68,39 +89,30 @@ function ChatMessage(chatMessageObject: any) {
   );
 }
 
-function MessageDispatcher() {
+function MessageDispatcher(props: { userName: string }) {
   const messageListRef = firebase.database().ref("messages");
   const messageFieldRef = useRef(""); //creating a refernce for TextField Component
-  const nameFieldRef = useRef(""); //creating a refernce for TextField Component
   const sendMessage = () => {
     // get message
     //@ts-ignore
     const messageString = messageFieldRef.current.value;
+    if (messageString === "") {
+      return;
+    }
     //@ts-ignore
     messageFieldRef.current.value = "";
-
-    // get name
-    //@ts-ignore
-    const nameString = nameFieldRef.current.value;
 
     //send messagge
 
     const newRef = messageListRef.push();
     newRef.set({
       text: messageString,
-      sender: nameString,
-      winner: "Simon"
+      sender: props.userName
     });
   };
 
   return (
     <>
-      <TextField
-        inputRef={nameFieldRef}
-        id="outlined-basic"
-        label="Name"
-        variant="outlined"
-      />
       <TextField
         inputRef={messageFieldRef}
         id="outlined-basic"
@@ -112,5 +124,23 @@ function MessageDispatcher() {
         send
       </Button>
     </>
+  );
+}
+
+export default function App() {
+  const [userName, setUserName] = useState<string>();
+  return (
+    <div className="App">
+      <h1>Who wrote the message?</h1>
+      {userName ? (
+        <>
+          <h3> Hey {userName} </h3>
+          <Chat userName={userName} />
+          <MessageDispatcher userName={userName} />
+        </>
+      ) : (
+        <SetUserName setUserName={setUserName} />
+      )}
+    </div>
   );
 }
