@@ -2,11 +2,18 @@ import * as React from "react";
 import "./styles.css";
 import firebase from "firebase";
 import { useList } from "react-firebase-hooks/database";
-import { Button, TextField } from "@material-ui/core";
+import { Button, TextField, List, ListItem } from "@material-ui/core";
 import { useRef, useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
 const nameList = ["Alex", "Lisa", "Simon", "Tina", "Nicolai"];
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: "100%",
+    backgroundColor: theme.palette.background.paper
+  }
+}));
 function SetUserName(props: {
   setUserName: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) {
@@ -29,12 +36,13 @@ function SetUserName(props: {
 }
 
 function Chat(props: { userName: string }) {
+  const classes = useStyles();
   const messageListRef = firebase.database().ref("messages");
   const [snapshots, loading, error] = useList(messageListRef);
 
   return (
     <>
-      <ul>
+      <List className={classes}>
         {error && <strong>Error: {error}</strong>}
         {loading && <span>List: Loading...</span>}
         {!loading && snapshots && (
@@ -48,7 +56,7 @@ function Chat(props: { userName: string }) {
             </span>
           </React.Fragment>
         )}
-      </ul>
+      </List>
     </>
   );
 }
@@ -71,14 +79,14 @@ function ChatMessage(
         });
     } else {
       console.log("Wrong!");
-      alert("Wrong, try again");
-      alert("give everyone else a chance to make a guess!");
-      alert("wait a little more!");
+      alert("Wrong, please try again");
+      alert("Now, wait and give everyone else a chance to make a guess!");
+      alert("Wait just a little more!");
     }
   };
 
   return (
-    <li key={messageKey}>
+    <ListItem key={messageKey}>
       {winner ? (
         sender + " : " + text + " - Winner was " + winner.is
       ) : (
@@ -98,7 +106,7 @@ function ChatMessage(
           </>
         </>
       )}
-    </li>
+    </ListItem>
   );
 }
 
@@ -115,8 +123,7 @@ function MessageDispatcher(props: { userName: string }) {
     //@ts-ignore
     messageFieldRef.current.value = "";
 
-    //send messagge
-
+    //send message
     const newRef = messageListRef.push();
     newRef.set({
       text: messageString,
